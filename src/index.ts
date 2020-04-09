@@ -77,7 +77,7 @@ function handleLockedState(channel: Discord.TextChannel, saltyBet: SaltyBet, sta
 
 function getOdds(playerOneTotalBets: number, playerTwoTotalBets: number): string {
     const min = Math.min(playerOneTotalBets, playerTwoTotalBets);
-    
+
     return `${playerOneTotalBets / min}:${playerTwoTotalBets / min}`
 }
 
