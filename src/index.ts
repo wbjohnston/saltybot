@@ -24,7 +24,7 @@ const exit = false;
 dotenv.config();
 const client = new Discord.Client();
 client.on('ready', async () => {
-    const currentState = await getState();
+    let currentState = await getState();
     const saltyBet = new SaltyBet(currentState.status, currentState.p1total, currentState.p2total);
 
     console.log(`Logged in as ${client?.user?.tag}`);
@@ -34,15 +34,15 @@ client.on('ready', async () => {
         try {
             console.log("fetching state....");
 
-            const state = await getState();
+            currentState = await getState();
 
             // post a notification if it's a new match
-            if (saltyBet.getStatus() === Status.Locked && state.status === Status.Open) {
-                channel.send(`new match is starting! ${state.p1name} vs ${state.p2name} https://www.saltybet.com`);
+            if (saltyBet.getStatus() === Status.Locked && currentState.status === Status.Open) {
+                channel.send(`new match is starting! ${currentState.p1name} vs ${currentState.p2name} https://www.saltybet.com`);
                 saltyBet.setStatus(Status.Open);
             }
-            if (saltyBet.getStatus() === Status.Open && state.status === Status.Locked) {
-                handleLockedState(channel, saltyBet, state);
+            if (saltyBet.getStatus() === Status.Open && currentState.status === Status.Locked) {
+                handleLockedState(channel, saltyBet, currentState);
             }
 
             // TODO: post a notification when a match has been locked in
