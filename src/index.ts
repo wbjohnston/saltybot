@@ -76,22 +76,9 @@ function handleLockedState(channel: Discord.TextChannel, saltyBet: SaltyBet, sta
 }
 
 function getOdds(playerOneTotalBets: number, playerTwoTotalBets: number): string {
-    let odds = '1:1';
-
-    if (playerOneTotalBets > playerTwoTotalBets) {
-        let ratio = playerOneTotalBets / playerTwoTotalBets;
-        ratio = Math.round(ratio * 10) / 10;
-
-        odds = `${ratio}:1`;
-    }
-    if (playerTwoTotalBets > playerOneTotalBets) {
-        let ratio = playerTwoTotalBets / playerOneTotalBets;
-        ratio = Math.round(ratio * 10) / 10;
-
-        odds = `1:${ratio}`;
-    }
-
-    return odds;
+    const min = Math.min(playerOneTotalBets, playerTwoTotalBets);
+    
+    return `${playerOneTotalBets / min}:${playerTwoTotalBets / min}`
 }
 
 client.login(process.env.DISCORD_TOKEN);
