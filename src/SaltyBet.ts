@@ -10,8 +10,8 @@ export class SaltyBet {
 
     public constructor(status: Status, playerOneTotalBets: number, playerTwoTotalBets: number) {
         this.status = status;
-        this.playerOneTotalBets = 0;
-        this.playerTwoTotalBets = 0;
+        this.playerOneTotalBets = playerOneTotalBets;
+        this.playerTwoTotalBets = playerTwoTotalBets;
     }
 
     public setStatus(status: Status): this {
