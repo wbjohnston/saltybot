@@ -20,12 +20,12 @@ async function getState(): Promise<any> {
     return response.data;
 }
 
-let exit = false;
+const exit = false;
 dotenv.config();
 const client = new Discord.Client();
 client.on('ready', async () => {
-    const state = await getState();
-    let saltyBet = new SaltyBet(state.status, state.p1total, state.p2total);
+    const currentState = await getState();
+    const saltyBet = new SaltyBet(currentState.status, currentState.p1total, currentState.p2total);
 
     console.log(`Logged in as ${client?.user?.tag}`);
     const channel = client.channels.cache.get('697617552926572571') as Discord.TextChannel;
@@ -37,7 +37,7 @@ client.on('ready', async () => {
             const state = await getState();
 
             // post a notification if it's a new match
-            if (saltyBet.getPreviousStatus() === Status.Locked && state.status == Status.Open) {
+            if (saltyBet.getPreviousStatus() === Status.Locked && state.status === Status.Open) {
                 channel.send(`new match is starting! ${state.p1name} vs ${state.p2name} https://www.saltybet.com`);
                 saltyBet.setPreviousStatus(Status.Open);
             }
@@ -62,14 +62,14 @@ client.on('ready', async () => {
 });
 
 function handleLockedState(channel: Discord.TextChannel, saltyBet: SaltyBet, state: any) {
-    saltyBet.setPlayerOneTotalBets(parseInt(state.p1total.replace(/,/g, '')));
-    saltyBet.setPlayerTwoTotalBets(parseInt(state.p2total.replace(/,/g, '')));
+    saltyBet.setPlayerOneTotalBets(parseInt(state.p1total.replace(/,/g, ''), 10));
+    saltyBet.setPlayerTwoTotalBets(parseInt(state.p2total.replace(/,/g, ''), 10));
 
     const odds = getOdds(saltyBet.getPlayerOneTotalBets(), saltyBet.getPlayerTwoTotalBets());
     channel.send(`
-        Betting is now locked on 
-        ${state.p1name}: ${saltyBet.getPlayerOneTotalBets()} vs 
-        ${state.p2name}: ${saltyBet.getPlayerTwoTotalBets()}. 
+        Betting is now locked on
+        ${state.p1name}: ${saltyBet.getPlayerOneTotalBets()} vs
+        ${state.p2name}: ${saltyBet.getPlayerTwoTotalBets()}.
         Odds: ${odds}
     `);
     saltyBet.setPreviousStatus(Status.Locked);
