@@ -1,0 +1,8 @@
+build/
+node_modules/
+tsconfig.tsbuildinfo
+
+
+.env
+.env.production
+.env.development
