@@ -4,24 +4,24 @@ export enum Status {
 }
 
 export class SaltyBet {
-    private previousStatus: Status;
+    private status: Status;
     private playerOneTotalBets: number;
     private playerTwoTotalBets: number;
 
-    public constructor(previousStatus: Status, playerOneTotalBets: number, playerTwoTotalBets: number) {
-        this.previousStatus = previousStatus;
+    public constructor(status: Status, playerOneTotalBets: number, playerTwoTotalBets: number) {
+        this.status = status;
         this.playerOneTotalBets = playerOneTotalBets;
         this.playerTwoTotalBets = playerTwoTotalBets;
     }
 
-    public setPreviousStatus(status: Status): this {
-        this.previousStatus = status;
+    public setStatus(status: Status): this {
+        this.status = status;
 
         return this;
     }
 
-    public getPreviousStatus(): Status {
-        return this.previousStatus;
+    public getStatus(): Status {
+        return this.status;
     }
 
     public getPlayerOneTotalBets(): number {
