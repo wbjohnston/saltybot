@@ -36,7 +36,6 @@ client.on('ready', async () => {
 
             const state = await getState();
 
-            console.log(state);
             // post a notification if it's a new match
             if (saltyBet.getPreviousStatus() === Status.Locked && state.status == Status.Open) {
                 channel.send(`new match is starting! ${state.p1name} vs ${state.p2name} https://www.saltybet.com`);
