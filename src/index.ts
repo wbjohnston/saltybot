@@ -39,7 +39,7 @@ client.on('ready', async () => {
             console.log(state);
             // post a notification if it's a new match
             if (saltyBet.getStatus() === Status.Locked && state.status == Status.Open) {
-                channel.send(`new match is starting! ${p1} vs ${p2} https://www.saltybet.com`);
+                channel.send(`new match is starting! ${state.p1name} vs ${state.p2name} https://www.saltybet.com`);
                 saltyBet.setStatus(Status.Open);
             }
             if (saltyBet.getStatus() === Status.Open && state.status === Status.Locked) {
@@ -63,8 +63,9 @@ client.on('ready', async () => {
 });
 
 function handleLockedState(channel: Discord.TextChannel, saltyBet: SaltyBet, state: any) {
-    saltyBet.setPlayerOneTotalBets(state.p1total);
-    saltyBet.setPlayerTwoTotalBets(state.p2total);
+    saltyBet.setPlayerOneTotalBets(parseInt(state.p1total.replace(/,/g, '')));
+    saltyBet.setPlayerTwoTotalBets(parseInt(state.p2total.replace(/,/g, '')));
+
     const odds = getOdds(saltyBet.getPlayerOneTotalBets(), saltyBet.getPlayerTwoTotalBets());
     channel.send(`
         Betting is now locked on 
@@ -80,10 +81,14 @@ function getOdds(playerOneTotalBets: number, playerTwoTotalBets: number): string
 
     if (playerOneTotalBets > playerTwoTotalBets) {
         let ratio = playerOneTotalBets / playerTwoTotalBets;
+        ratio = Math.round(ratio * 10) / 10;
+
         odds = `${ratio}:1`;
     }
     if (playerTwoTotalBets > playerOneTotalBets) {
         let ratio = playerTwoTotalBets / playerOneTotalBets;
+        ratio = Math.round(ratio * 10) / 10;
+
         odds = `1:${ratio}`;
     }
 
