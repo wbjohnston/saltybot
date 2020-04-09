@@ -1,7 +1,7 @@
 import * as dotenv from "dotenv"
 import axios from "axios"
 import * as Discord from "discord.js"
-import { SaltyBet, STATUS } from './SaltyBet';
+import { SaltyBet, Status } from './SaltyBet';
 
 
 const POLL_MS = 3000;
@@ -25,33 +25,25 @@ dotenv.config();
 const client = new Discord.Client();
 client.on('ready', async () => {
     const state = await getState();
-    let saltyBet = new SaltyBet(state.status);
+    let saltyBet = new SaltyBet(state.status, state.p1total, state.p2total);
 
     console.log(`Logged in as ${client?.user?.tag}`);
     const channel = client.channels.cache.get('697617552926572571') as Discord.TextChannel;
-    let lastSeenP1;
-    let lastSeenP2;
 
     while (!exit) {
         try {
             console.log("fetching state....");
 
             const state = await getState();
-            let p1 = state.p1name;
-            let p2 = state.p2name;
-            const isDifferentMatch = p1 != lastSeenP1 && p2 != lastSeenP2;
 
-            console.log(state.status);
+            console.log(state);
             // post a notification if it's a new match
-            if (saltyBet.getStatus() === STATUS.Locked && state.status == STATUS.Open) {
+            if (saltyBet.getStatus() === Status.Locked && state.status == Status.Open) {
                 channel.send(`new match is starting! ${p1} vs ${p2} https://www.saltybet.com`);
-                lastSeenP1 = p1;
-                lastSeenP2 = p2;
-                saltyBet.setStatus(STATUS.Open);
+                saltyBet.setStatus(Status.Open);
             }
-            if (saltyBet.getStatus() === STATUS.Open && state.status === STATUS.Locked) {
-                channel.send(`Betting is now locked on ${p1} vs ${p2} https://www.saltybet.com`);
-                saltyBet.setStatus(STATUS.Locked);
+            if (saltyBet.getStatus() === Status.Open && state.status === Status.Locked) {
+                handleLockedState(channel, saltyBet, state);
             }
 
             // TODO: post a notification when a match has been locked in
@@ -69,5 +61,33 @@ client.on('ready', async () => {
         await delay(POLL_MS);
     }
 });
+
+function handleLockedState(channel: Discord.TextChannel, saltyBet: SaltyBet, state: any) {
+    saltyBet.setPlayerOneTotalBets(state.p1total);
+    saltyBet.setPlayerTwoTotalBets(state.p2total);
+    const odds = getOdds(saltyBet.getPlayerOneTotalBets(), saltyBet.getPlayerTwoTotalBets());
+    channel.send(`
+        Betting is now locked on 
+        ${state.p1name}: ${saltyBet.getPlayerOneTotalBets()} vs 
+        ${state.p2name}: ${saltyBet.getPlayerTwoTotalBets()}. 
+        Odds: ${odds}
+    `);
+    saltyBet.setStatus(Status.Locked);
+}
+
+function getOdds(playerOneTotalBets: number, playerTwoTotalBets: number): string {
+    let odds = '1:1';
+
+    if (playerOneTotalBets > playerTwoTotalBets) {
+        let ratio = playerOneTotalBets / playerTwoTotalBets;
+        odds = `${ratio}:1`;
+    }
+    if (playerTwoTotalBets > playerOneTotalBets) {
+        let ratio = playerTwoTotalBets / playerOneTotalBets;
+        odds = `1:${ratio}`;
+    }
+
+    return odds;
+}
 
 client.login(process.env.DISCORD_TOKEN);

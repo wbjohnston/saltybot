@@ -1,22 +1,46 @@
-export enum STATUS {
+export enum Status {
     Open = 'open',
     Locked = 'locked'
 }
 
 export class SaltyBet {
-    protected status: STATUS;
+    private status: Status;
+    private playerOneTotalBets: number;
+    private playerTwoTotalBets: number;
 
-    public constructor(status: STATUS) {
-        this.status = status
+    public constructor(status: Status, playerOneTotalBets: number, playerTwoTotalBets: number) {
+        this.status = status;
+        this.playerOneTotalBets = 0;
+        this.playerTwoTotalBets = 0;
     }
 
-    public setStatus(status: STATUS): this {
+    public setStatus(status: Status): this {
         this.status = status;
 
         return this;
     }
 
-    public getStatus(): STATUS {
+    public getStatus(): Status {
         return this.status;
+    }
+
+    public getPlayerOneTotalBets(): number {
+        return this.playerOneTotalBets;
+    }
+
+    public setPlayerOneTotalBets(total: number): this {
+        this.playerOneTotalBets = total;
+
+        return this;
+    }
+
+    public getPlayerTwoTotalBets(): number {
+        return this.playerTwoTotalBets;
+    }
+
+    public setPlayerTwoTotalBets(total: number): this {
+        this.playerTwoTotalBets = total;
+
+        return this;
     }
 }
