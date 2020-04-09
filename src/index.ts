@@ -20,7 +20,7 @@ async function getState(): Promise<any> {
 }
 
 
-let exit = false
+const exit = false
 dotenv.config();
 const client = new Discord.Client()
 client.on('ready', async () => {
@@ -34,12 +34,12 @@ client.on('ready', async () => {
         try {
             console.log("fetching state....")
             const state = await getState();
-            let p1 = state.p1name;
-            let p2 = state.p2name;
-            const isDifferentMatch = p1 != lastSeenP1 && p2 != lastSeenP2
+            const p1 = state.p1name;
+            const p2 = state.p2name;
+            const isDifferentMatch = p1 !== lastSeenP1 && p2 !== lastSeenP2
 
             // post a notification if it's a new match
-            if (state.status == 'open' && isDifferentMatch) {
+            if (state.status === 'open' && isDifferentMatch) {
                 channel.send(`new match is starting! ${p1} vs ${p2} https://www.saltybet.com`)
                 lastSeenP1 = p1
                 lastSeenP2 = p2
