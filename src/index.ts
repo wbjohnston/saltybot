@@ -38,11 +38,11 @@ client.on('ready', async () => {
 
             console.log(state);
             // post a notification if it's a new match
-            if (saltyBet.getStatus() === Status.Locked && state.status == Status.Open) {
+            if (saltyBet.getPreviousStatus() === Status.Locked && state.status == Status.Open) {
                 channel.send(`new match is starting! ${state.p1name} vs ${state.p2name} https://www.saltybet.com`);
-                saltyBet.setStatus(Status.Open);
+                saltyBet.setPreviousStatus(Status.Open);
             }
-            if (saltyBet.getStatus() === Status.Open && state.status === Status.Locked) {
+            if (saltyBet.getPreviousStatus() === Status.Open && state.status === Status.Locked) {
                 handleLockedState(channel, saltyBet, state);
             }
 
@@ -73,7 +73,7 @@ function handleLockedState(channel: Discord.TextChannel, saltyBet: SaltyBet, sta
         ${state.p2name}: ${saltyBet.getPlayerTwoTotalBets()}. 
         Odds: ${odds}
     `);
-    saltyBet.setStatus(Status.Locked);
+    saltyBet.setPreviousStatus(Status.Locked);
 }
 
 function getOdds(playerOneTotalBets: number, playerTwoTotalBets: number): string {
