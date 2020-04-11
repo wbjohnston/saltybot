@@ -1,0 +1,8 @@
+version: "3"
+services:
+  saltybot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./src:/usr/src/app/src
