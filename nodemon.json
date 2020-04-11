@@ -1,0 +1,10 @@
+{
+    "ignore": [
+        "**/*.test.s",
+        "node_modules"
+    ],
+    "watch": [
+        "src"
+    ],
+    "ext": "ts"
+}
