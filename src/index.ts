@@ -1,20 +1,43 @@
-import * as dotenv from "dotenv"
-import axios from "axios"
-import * as Discord from "discord.js"
+import * as dotenv from 'dotenv';
+import axios from 'axios';
+import * as Discord from 'discord.js';
 import { SaltyBet, Status } from './SaltyBet';
-
 
 const POLL_MS = 3000;
 
-function delay(ms: number) {
-    return new Promise((resolve, reject) => setTimeout(resolve, ms))
+function delay(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function getOdds(playerOneTotalBets: number, playerTwoTotalBets: number): string {
+    const min = Math.min(playerOneTotalBets, playerTwoTotalBets);
+
+    return `${playerOneTotalBets / min}:${playerTwoTotalBets / min}`;
+}
+
+// TODO: replace any for `state` parameter
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function handleLockedState(channel: Discord.TextChannel, saltyBet: SaltyBet, state: any): void {
+    saltyBet.setPlayerOneTotalBets(parseInt(state.p1total.replace(/,/g, ''), 10));
+    saltyBet.setPlayerTwoTotalBets(parseInt(state.p2total.replace(/,/g, ''), 10));
+
+    const odds = getOdds(saltyBet.getPlayerOneTotalBets(), saltyBet.getPlayerTwoTotalBets());
+    channel.send(`
+        Betting is now locked on
+        ${state.p1name}: ${saltyBet.getPlayerOneTotalBets()} vs
+        ${state.p2name}: ${saltyBet.getPlayerTwoTotalBets()}.
+        Odds: ${odds}
+    `);
+    saltyBet.setStatus(Status.Locked);
+}
+
+// TODO: replace return type
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function getState(): Promise<any> {
     const response = await axios({
         method: 'GET',
         baseURL: process.env.SALTYBET_URL,
-        url: `/state.json?t=${(new Date()).getTime()}`
+        url: `/state.json?t=${new Date().getTime()}`,
     });
 
     return response.data;
@@ -32,13 +55,15 @@ client.on('ready', async () => {
 
     while (!exit) {
         try {
-            console.log("fetching state....");
+            console.log('fetching state....');
 
             currentState = await getState();
 
             // post a notification if it's a new match
             if (saltyBet.getStatus() === Status.Locked && currentState.status === Status.Open) {
-                channel.send(`new match is starting! ${currentState.p1name} vs ${currentState.p2name} https://www.saltybet.com`);
+                channel.send(
+                    `new match is starting! ${currentState.p1name} vs ${currentState.p2name} https://www.saltybet.com`,
+                );
                 saltyBet.setStatus(Status.Open);
             }
             if (saltyBet.getStatus() === Status.Open && currentState.status === Status.Locked) {
@@ -52,7 +77,6 @@ client.on('ready', async () => {
             // TODO: send a notification when there are X rounds remaining before a tournament
 
             // TODO: send a notification when a tournament is starting
-
         } catch (e) {
             console.error(e);
         }
@@ -60,25 +84,5 @@ client.on('ready', async () => {
         await delay(POLL_MS);
     }
 });
-
-function handleLockedState(channel: Discord.TextChannel, saltyBet: SaltyBet, state: any) {
-    saltyBet.setPlayerOneTotalBets(parseInt(state.p1total.replace(/,/g, ''), 10));
-    saltyBet.setPlayerTwoTotalBets(parseInt(state.p2total.replace(/,/g, ''), 10));
-
-    const odds = getOdds(saltyBet.getPlayerOneTotalBets(), saltyBet.getPlayerTwoTotalBets());
-    channel.send(`
-        Betting is now locked on
-        ${state.p1name}: ${saltyBet.getPlayerOneTotalBets()} vs
-        ${state.p2name}: ${saltyBet.getPlayerTwoTotalBets()}.
-        Odds: ${odds}
-    `);
-    saltyBet.setStatus(Status.Locked);
-}
-
-function getOdds(playerOneTotalBets: number, playerTwoTotalBets: number): string {
-    const min = Math.min(playerOneTotalBets, playerTwoTotalBets);
-
-    return `${playerOneTotalBets / min}:${playerTwoTotalBets / min}`
-}
 
 client.login(process.env.DISCORD_TOKEN);
