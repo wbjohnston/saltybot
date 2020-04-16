@@ -2,7 +2,7 @@ import * as dotenv from 'dotenv';
 import axios from 'axios';
 import * as Discord from 'discord.js';
 import { SaltyBet, Status } from './SaltyBet';
-import { UserRepository } from "./UserRepository";
+import { UserRepository } from './UserRepository';
 
 const POLL_MS = 3000;
 
@@ -86,18 +86,18 @@ client.on('ready', async () => {
     }
 });
 
-client.on('message', async (message: any) => {
+client.on('message', async (message: Discord.Message) => {
     const channel = client.channels.cache.get(process.env.DISCORD_ID as string) as Discord.TextChannel;
     const commandString = message.content;
-    const commandArray = commandString.split(" ");
+    const commandArray = commandString.split(' ');
     const command = commandArray[0];
 
-    switch(command) {
+    switch (command) {
         case 'Register':
             if (commandArray.length !== 2) {
                 channel.send(`Command failed: Register, Expected: "Register <user email>"`);
 
-                break
+                break;
             }
             const userRepository = new UserRepository();
             userRepository.addUser(commandArray[1]);
@@ -106,25 +106,5 @@ client.on('message', async (message: any) => {
             break;
     }
 });
-
-function handleLockedState(channel: Discord.TextChannel, saltyBet: SaltyBet, state: any) {
-    saltyBet.setPlayerOneTotalBets(parseInt(state.p1total.replace(/,/g, ''), 10));
-    saltyBet.setPlayerTwoTotalBets(parseInt(state.p2total.replace(/,/g, ''), 10));
-
-    const odds = getOdds(saltyBet.getPlayerOneTotalBets(), saltyBet.getPlayerTwoTotalBets());
-    channel.send(`
-        Betting is now locked on
-        ${state.p1name}: ${saltyBet.getPlayerOneTotalBets()} vs
-        ${state.p2name}: ${saltyBet.getPlayerTwoTotalBets()}.
-        Odds: ${odds}
-    `);
-    saltyBet.setStatus(Status.Locked);
-}
-
-function getOdds(playerOneTotalBets: number, playerTwoTotalBets: number): string {
-    const min = Math.min(playerOneTotalBets, playerTwoTotalBets);
-
-    return `${playerOneTotalBets / min}:${playerTwoTotalBets / min}`
-}
 
 client.login(process.env.DISCORD_TOKEN);
