@@ -1,6 +1,6 @@
 export enum Status {
     Open = 'open',
-    Locked = 'locked'
+    Locked = 'locked',
 }
 
 export class SaltyBet {
