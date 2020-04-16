@@ -1,15 +1,14 @@
-import config from "./config"
 import * as mysql from 'mysql';
 
 export class MysqlConnection {
-    public connection: any;
+    public connection: mysql.Connection;
 
     public constructor() {
         const connection = mysql.createConnection({
-            host: config.host,
-            user: config.user,
-            password: config.password,
-            database: config.database
+            host: process.env.DB_HOST,
+            user: process.env.DB_USER,
+            password: process.env.DB_PASSWORD,
+            database: process.env.DB_DATABASE
         });
 
         this.connection = connection;

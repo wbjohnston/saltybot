@@ -3,7 +3,6 @@ import axios from "axios"
 import * as Discord from "discord.js"
 import { SaltyBet, Status } from './SaltyBet';
 import { UserRepository } from "./UserRepository";
-import config from "./config"
 
 
 const POLL_MS = 3000;
@@ -30,7 +29,7 @@ client.on('ready', async () => {
     const saltyBet = new SaltyBet(currentState.status, currentState.p1total, currentState.p2total);
 
     console.log(`Logged in as ${client?.user?.tag}`);
-    const channel = client.channels.cache.get(config.discordId) as Discord.TextChannel;
+    const channel = client.channels.cache.get(process.env.DISCORD_ID as string) as Discord.TextChannel;
 
     while (!exit) {
         try {
@@ -64,7 +63,7 @@ client.on('ready', async () => {
 });
 
 client.on('message', async (message: any) => {
-    const channel = client.channels.cache.get(config.discordId) as Discord.TextChannel;
+    const channel = client.channels.cache.get(process.env.DISCORD_ID as string) as Discord.TextChannel;
     const commandString = message.content;
     const commandArray = commandString.split(" ");
     const command = commandArray[0];
